@@ -47,7 +47,7 @@ function ControlManager:recomputeScores()
       totalAreas = totalAreas + areasInGroup
       score = score + areasInGroup * areasInGroup
     end
-    score = score + totalAreas * 2
+    score = score + totalAreas * 10
     player.score_ = score
     scoreDisplay = scoreDisplay .. player.name_ .. ': ' .. tostring(score) .. ' '
   end
