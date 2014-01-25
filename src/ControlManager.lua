@@ -254,19 +254,19 @@ function ControlGroup:removeAndSplit(area)
 
   areas[area] = nil
   area.group_ = nil
+
+  -- Otherwise we may need to split the group. Remove the area and start
+  -- crawling from one spot
+  local seed, _ = next(areas)
   self.numAreas_ = self.numAreas_ - 1
 
-  if self.numAreas_ == 0 then
+  if seed == nil then
     -- This was a singleton group, we should just remove ourselves from the
     -- manager.
     self.manager_.groupsOwnedBy_[self.owner_][self] = nil
     return
   end
 
-
-  -- Otherwise we may need to split the group. Remove the area and start
-  -- crawling from one spot
-  local seed, _ = next(areas)
   local crawled = {}
   local nCrawled = crawlFromArea(seed, crawled)
 
