@@ -96,14 +96,17 @@ function Controller.new(player, opts)
     local up, down, left, right = self.upKey_, self.downKey_, self.leftKey_, self.rightKey_
     local player = self.player_
     if pressed then
-      if key == up then self.dirY_ = 1
-      elseif key == down then self.dirY_ = -1 end
+      if key == up then self.dirY_ = self.dirY_ + 1
+      elseif key == down then self.dirY_ = self.dirY_ - 1 end
 
-      if key == left then self.dirX_ = -1
-      elseif key == right then self.dirX_ = 1 end
+      if key == left then self.dirX_ = self.dirX_ - 1
+      elseif key == right then self.dirX_ = self.dirX_ + 1 end
     else
-      if key == left or key == right then self.dirX_ = 0
-      elseif key == up or key == down then self.dirY_ = 0 end
+      if key == up then self.dirY_ = self.dirY_ - 1
+      elseif key == down then self.dirY_ = self.dirY_ + 1 end
+
+      if key == left then self.dirX_ = self.dirX_ + 1
+      elseif key == right then self.dirX_ = self.dirX_ - 1 end
     end
   end
 
