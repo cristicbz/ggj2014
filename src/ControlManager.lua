@@ -48,7 +48,7 @@ function ControlManager:recomputeScores()
       totalAreas = totalAreas + areasInGroup
       score = score + areasInGroup * areasInGroup
     end
-    score = score + totalAreas * 2
+    score = score + totalAreas * 10
     player.score_ = score
     if not maxPlayer or score > maxPlayer.score_ then maxPlayer = player end
     scoreDisplay = scoreDisplay .. player.name_ .. ': ' .. tostring(score) .. ' '

@@ -110,7 +110,6 @@ function Level.new(world, bgLayer, fgLayer, assets)
   self.assets_ = assets
 
   self.bodyLookup_ = ActiveSet.new()
-  MOAIGfxDevice.setClearColor(0.2, 0.2, 0.2, 0.0)
 
   return self
 end
