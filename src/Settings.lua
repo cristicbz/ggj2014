@@ -5,7 +5,7 @@ settings = {
     screen_pixel_width = 1280,
     screen_pixel_height = 720,
     gravity = -0.02,
-    global_drag = 0.195 
+    global_drag = 0.145 
   },
 
   debug = {
@@ -35,10 +35,9 @@ settings = {
         size = 2.85,
         collision_scale = 1.0,
         mass = 1.2,
-        restitution = 0.8,
+        restitution = 3,
         friction = 0.05,
         move_strength = 300.0,
-        speed = 40.0,
         bindings = {
           up = string.byte('w'),
           down = string.byte('s'),
@@ -58,10 +57,9 @@ settings = {
         size = 2.85,
         collision_scale = 1.0,
         mass = 1.2,
-        restitution = 0.8,
+        restitution = 3,
         friction = 0.05,
         move_strength = 300.0,
-        speed = 40.0,
         bindings = {
           up = string.byte('i'),
           down = string.byte('k'),
@@ -101,7 +99,7 @@ settings = {
 
   levels = {
     {
-      definition_path = "assets/levels/level1.lua",
+      definition_path = "assets/levels/level2.lua",
       background_path = "assets/gfx/ARENA.png",
     },
   },
