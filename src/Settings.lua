@@ -30,6 +30,7 @@ settings = {
   entities = {
     players = {
       {
+        name = 'kiki',
         texture_path = 'assets/gfx/kiki.png',
         color = {1.0, 0.5, 0.0, 1.0},
         size = 2.85,
@@ -53,6 +54,7 @@ settings = {
         },
       },
       {
+        name = 'bouba',
         texture_path = 'assets/gfx/bouba.png',
         color = {0.2, 0.8, 0.2, 1.0},
         size = 2.85,

@@ -10,6 +10,19 @@ function Player.new(cell, assets, opts)
       opts.mass, opts.restitution, opts.friction)
   body:setAngularDamping(0.8)
 
+  fixture:setCollisionHandler(
+      function(phase, a, b)
+        local b = cell:lookupBody(b:getBody())
+        if b == nil then return end
+        if b.score_ ~= nil then
+          if self.score_ > b.score_ then
+            cell.level_:win(self)
+          elseif self.score_ < b.score_ then
+            cell.level_:win(b)
+          end
+        end
+      end, MOAIBox2DArbiter.BEGIN)
+
   local deck = MOAIGfxQuad2D.new()
   deck:setTexture(assets.character_texture)
   deck:setRect(-radius, -radius, radius, radius)
@@ -30,6 +43,8 @@ function Player.new(cell, assets, opts)
   self.moveStrength_ = opts.move_strength
   self.maskDeck_ = assets.mask_quads[1]
   self.color_ = opts.color
+  self.name_ = opts.name
+  self.score_ = 0
 
   return self
 end

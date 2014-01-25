@@ -29,8 +29,29 @@ function ControlManager.new(cell)
   self.ownedBy_ = ownedBy
   self.groupsOwnedBy_ = groupsOwnedBy
   self.maskLayer_ = cell.fgLayer_
+  self.scores_ = {}
 
   return self
+end
+
+function ControlManager:recomputeScores()
+  local groupsOwnedBy = self.groupsOwnedBy_
+  local scoreDisplay = 'Scores: '
+  for player, _ in pairs(groupsOwnedBy) do
+    local score, totalAreas = 0, 0
+    for group, _ in pairs(groupsOwnedBy[player]) do
+      local areasInGroup = 0
+      for area, _ in pairs(group.areas_) do
+        areasInGroup = areasInGroup + 1
+      end
+      totalAreas = totalAreas + areasInGroup
+      score = score + areasInGroup * areasInGroup
+    end
+    score = score + totalAreas * 2
+    player.score_ = score
+    scoreDisplay = scoreDisplay .. player.name_ .. ': ' .. tostring(score) .. ' '
+  end
+  print(scoreDisplay)
 end
 
 function ControlManager:captureTouching(player)
@@ -40,6 +61,8 @@ function ControlManager:captureTouching(player)
   for area, _ in pairs(self.touchedBy_[player]) do
     area:setOwner(player)
   end
+
+  self:recomputeScores()
 end
 
 function ControlManager:addFromDefinition(def)
@@ -97,7 +120,6 @@ function ControlArea.new(manager, layer)
   self.centre_ = nil
   self.group_ = nil
   self.pulsing_ = false
-  self.pulseDelay_ = 0.1
 
   return self
 end
@@ -121,7 +143,7 @@ function ControlArea:updateCentre_()
   self.centreX_, self.centreY_ = cx / totalVerts, cy / totalVerts
 end
 
-function ControlArea:pulse(delay)
+function ControlArea:pulse()
   if not self.group_ then print('pulse with no group') end
   if self.pulsing_ then return end
   if delay == nil then delay = 0 end

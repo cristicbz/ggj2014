@@ -142,14 +142,24 @@ function Level:lose()
   MOAIInputMgr.device.mouseLeft:setCallback(callback)
 end
 
+function Level:win(player)
+  if not self.ended_ then
+    self.ended_ = true
+    self.world_:stop() print(player.name_ .. ' WINS!')
+    MOAICoroutine.new():run(
+    function()
+      self:fadeScreenIn({1, 1, 1, 1}, 1.0)
+    end)
+  end
+end
+
 function Level:fadeScreenIn(color, time)
   local fader = MOAIProp2D.new()
-  fader:setDeck(self.assets.fader)
-  fader:setPriority(settings.priorities.lightmap + 20)
+  fader:setDeck(self.assets_.fader)
+  fader:setPriority(settings.priorities.fader)
 
-  if self.globalCell then 
+  if self.globalCell_ then 
     fader:setColor(0, 0, 0, 0)
-    fader:setProp(settings.priorities.fader)
     self.fgLayer_:insertProp(fader)
     MOAICoroutine.blockOnAction(fader:seekColor(
         color[1], color[2], color[3], 1.0, time, MOAIEaseType.EASE_OUT))
