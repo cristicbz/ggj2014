@@ -88,7 +88,7 @@ function Effect:setTimeLimit( timeLimit )
     self.timer_:start()
 
     self.timerSpan_ = timeLimit
-  else
+  elseif self.timer_ then
     self.timer_:stop()
     self.timer_:setListener( MOAITimer.EVENT_TIMER_LOOP, nil )
     self.timer_ = nil

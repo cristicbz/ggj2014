@@ -37,6 +37,7 @@ end
 function ControlManager:recomputeScores()
   local groupsOwnedBy = self.groupsOwnedBy_
   local scoreDisplay = 'Scores: '
+  local maxPlayer = nil
   for player, _ in pairs(groupsOwnedBy) do
     local score, totalAreas = 0, 0
     for group, _ in pairs(groupsOwnedBy[player]) do
@@ -49,8 +50,18 @@ function ControlManager:recomputeScores()
     end
     score = score + totalAreas * 2
     player.score_ = score
+    if not maxPlayer or score > maxPlayer.score_ then maxPlayer = player end
     scoreDisplay = scoreDisplay .. player.name_ .. ': ' .. tostring(score) .. ' '
   end
+
+  for player, _ in pairs(groupsOwnedBy) do
+    if player == maxPlayer then
+      player.effect_ = LeadingEffect.attach(player)
+    elseif player.effect_ then
+      player.effect_:detach()
+    end
+  end
+
   print(scoreDisplay)
 end
 

@@ -16,6 +16,7 @@ dofile("src/Effect.lua")
 dofile("src/Level.lua")
 dofile("src/Player.lua")
 dofile("src/ControlManager.lua")
+dofile("src/LeadingEffect.lua")
 
 -------------------------------------------------------------------------------
 -- Entry point
