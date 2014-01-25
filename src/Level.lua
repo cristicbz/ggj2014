@@ -46,8 +46,8 @@ function LevelCell:initDynamicController_()
     body:applyForce( dragX, dragY, posX, posY )
   end
 
-  --self.dynamicSet_:addController(
-  --    self.dynamicBodyController_, ActiveSet.PASS_OBJECT_AND_DATA)
+  self.dynamicSet_:addController(
+      self.dynamicBodyController_, ActiveSet.PASS_OBJECT_AND_DATA)
 end
 
 
@@ -110,6 +110,7 @@ function Level.new(world, bgLayer, fgLayer, assets)
   self.assets_ = assets
 
   self.bodyLookup_ = ActiveSet.new()
+  MOAIGfxDevice.setClearColor(0.2, 0.2, 0.2, 0.0)
 
   return self
 end
@@ -168,14 +169,14 @@ function Level:fadeScreenOut(time)
 end
 
 function Level:loadDefinition(index)
-  --if not index then index = self.defIndex_
-  --else self.defIndex_ = index end
+  if not index then index = self.defIndex_
+  else self.defIndex_ = index end
 
-  --local loader, err = loadfile(settings.levels[self.defIndex_].definition_path)
-  --if loader == nil then print('Cannot open level ' .. err)
-  --else def = loader() end
-
+  local loader, err = loadfile(settings.levels[self.defIndex_].definition_path)
   local def
+  if loader == nil then print('Cannot open level; reason: ' .. err)
+  else def = loader() end
+
   return def
 end
 
@@ -196,13 +197,81 @@ function Level:restart()
 end
 
 function Level:createTransients_(def)
+  local playerDefs = {def.player1[1].circle, def.player2[1].circle}
   self.players_ = {}
   for iPlayer = 1, 2 do
-    self.players_[iPlayer] = Player.new(
+    local player = Player.new(
         self.transientCell_,
         self.assets_.players[iPlayer],
         settings.entities.players[iPlayer])
+
+    player:moveTo(unpack(playerDefs[iPlayer]))
+    self.players_[iPlayer] = player
   end
+end
+
+function Level:createControlManager_(def)
+  self.controlManager_ = ControlManager.new(self.globalCell_)
+  self.controlManager_:addFromDefinition(def.controlareas)
+end
+
+function Level:createWalls_(def)
+  self.wallsHandler_ = function(phase, a, b)
+    local player = self:lookupBody(b:getBody())
+    if player == nil then return end
+
+    self.controlManager_:captureTouching(player)
+  end
+
+  if self.walls_ then
+    self.walls_.body:destroy()
+    for _, prop in pairs(self.walls_.props) do
+      self.fgLayer_:removeProp(prop)
+    end
+    self.walls_ = nil
+  end
+
+  local body = self.world_:addBody(MOAIBox2DBody.STATIC)
+  local props = {}
+
+  local vertexfmt = MOAIVertexFormat.new()
+  vertexfmt:declareCoord(1, MOAIVertexFormat.GL_FLOAT, 2)
+  vertexfmt:declareUV(2, MOAIVertexFormat.GL_FLOAT, 2)
+  vertexfmt:declareColor(3, MOAIVertexFormat.GL_UNSIGNED_BYTE)
+
+  local pixelTex = MOAITexture.new()
+  pixelTex:load(settings.misc.pixel_texture_path)
+
+  for _, object in pairs(def.walls) do
+    local fixture = body:addChain(object.poly, true)
+    fixture:setCollisionHandler(self.wallsHandler_, MOAIBox2DArbiter.PRE_SOLVE)
+
+    if settings.debug.render_walls and object.convex then
+      for _, poly in pairs(object.convex) do
+        local vertexbuf = MOAIVertexBuffer.new()
+        vertexbuf:setFormat(vertexfmt)
+        vertexbuf:reserveVerts(#poly / 2)
+        for i = 1, #poly / 2 do
+          vertexbuf:writeFloat(poly[i * 2 - 1], poly[i * 2], 0, 0)
+          vertexbuf:writeColor32(1, 1, 1, 1)
+        end
+        vertexbuf:bless()
+
+        local mesh = MOAIMesh.new()
+        mesh:setVertexBuffer(vertexbuf)
+        mesh:setPrimType(MOAIMesh.GL_TRIANGLE_FAN)
+        mesh:setTexture(pixelTex)
+
+        local prop = MOAIProp2D.new()
+        prop:setDeck(mesh)
+        prop:setColor(0.5, 0.5, 0.5, 0.5)
+        self.fgLayer_:insertProp(prop)
+        table.insert(props, prop)
+      end
+    end
+  end
+
+  self.walls_ = {body = body, props = props}
 end
 
 function Level:clearCells_()
@@ -217,18 +286,29 @@ function Level:endOfGameHack()
         self.fader_:seekColor(0, 0, 0, 1, 4.0, MOAIEaseType.SMOOTH))
 end
 
+function Level:loadBackground(index)
+  if not self.background_ then
+    self.background_ = MOAIGfxQuad2D.new()
+    self.background_:setRect(
+        -Game.kScreenWidth / 2, -Game.kScreenHeight / 2,
+        Game.kScreenWidth / 2, Game.kScreenHeight / 2)
+
+    self.backgroundProp_ = MOAIProp2D.new()
+    self.backgroundProp_:setDeck(self.background_)
+
+    self.bgLayer_:insertProp(self.backgroundProp_)
+  end
+
+  self.background_:setTexture(settings.levels[index].background_path)
+end
+
 function Level:loadByIndex(newIndex)
   self:clearCells_()
   local def = self:loadDefinition(newIndex)
+  self:loadBackground(newIndex)
+  self:createWalls_(def)
+  self:createControlManager_(def)
   self:createTransients_(def)
-
-  self:addOuterWalls_()
-end
-
-function Level:addOuterWalls_()
-  local body = self.world_:addBody(MOAIBox2DBody.STATIC)
-  local w2, h2 = Game.kScreenWidth / 2, Game.kScreenHeight / 2
-  body:addChain({-w2, -h2, w2, -h2, w2, h2, -w2, h2}, true)
 end
 
 function Level:registerBody( body, entity )

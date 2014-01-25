@@ -8,9 +8,7 @@ function Player.new(cell, assets, opts)
   local body, fixture = self:addCircleFixture_(
       radius * opts.collision_scale, 
       opts.mass, opts.restitution, opts.friction)
-
-  local angle = math.random() * math.pi * 2.0
-  body:setLinearVelocity(math.cos(angle) * opts.speed, math.sin(angle) * opts.speed)
+  body:setAngularDamping(0.8)
 
   local deck = MOAIGfxQuad2D.new()
   deck:setTexture(assets.character_texture)
@@ -29,9 +27,15 @@ function Player.new(cell, assets, opts)
   self.layer_ = layer
   self.body_ = body
   self.speed_ = opts.speed
-  self.rotateBy_ = opts.rotate_by
+  self.moveStrength_ = opts.move_strength
+  self.maskDeck_ = assets.mask_quads[1]
+  self.color_ = opts.color
 
   return self
+end
+
+function Player:getColor()
+  return self.color_
 end
 
 function Player:destroy()
@@ -40,12 +44,17 @@ function Player:destroy()
   DynamicEntity.destroy(self)
 end
 
-function Player:goLeft()
-  self:rotateBy(-self.rotateBy_)
+function Player:goDir(toX, toY)
+  self.body_:applyForce(toX * self.moveStrength_, toY * self.moveStrength_,
+                        self.body_:getWorldCenter())
 end
 
-function Player:goRight()
-  self:rotateBy(self.rotateBy_)
+function Player:moveTo(x, y)
+  self.body_:setTransform(x, y, self.body_:getAngle())
+end
+
+function Player:getMaskDeck()
+  return self.maskDeck_
 end
 
 function Player:rotateBy(angle)
@@ -64,16 +73,37 @@ function Controller.new(player, opts)
   local self = setmetatable({}, {__index = Controller})
 
   self.player_ = player
+  self.upKey_ = opts.up
+  self.downKey_ = opts.down
   self.leftKey_ = opts.left
   self.rightKey_ = opts.right
+  self.dirX_, self.dirY_ = 0, 0
+  self.destroyed_ = false
+  self.coroutine_ = MOAICoroutine.new()
+  self.coroutine_:run(
+    function()
+      while not self.destroyed_ do
+        local x, y = self.dirX_, self.dirY_
+        if x ~= 0 or y ~= 0 then
+          player:goDir(x, y)
+        end
+        coroutine.yield()
+      end
+    end)
 
-  self.callback_ = function(key, down)
+  self.callback_ = function(key, pressed)
     local keyboard = MOAIInputMgr.device.keyboard
-    local left, right = self.leftKey_, self.rightKey_
+    local up, down, left, right = self.upKey_, self.downKey_, self.leftKey_, self.rightKey_
     local player = self.player_
-    if down then
-      if key == left then player:goLeft() end
-      if key == right then player:goRight() end
+    if pressed then
+      if key == up then self.dirY_ = 1
+      elseif key == down then self.dirY_ = -1 end
+
+      if key == left then self.dirX_ = -1
+      elseif key == right then self.dirX_ = 1 end
+    else
+      if key == left or key == right then self.dirX_ = 0
+      elseif key == up or key == down then self.dirY_ = 0 end
     end
   end
 

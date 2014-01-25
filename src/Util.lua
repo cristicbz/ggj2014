@@ -203,6 +203,16 @@ function createAlignedRectFromVerts(body, verts, xscale, yscale)
   return fixture
 end
 
+function reversed_poly(t)
+  local r = {}
+  local n = #t / 2
+  for i=1,n do
+    r[(n - i + 1) * 2 - 1] = t[i * 2 - 1]
+    r[(n - i + 1) * 2] = t[i * 2]
+  end
+  return r
+end
+
 
 -------------------------------------------------------------------------------
 -- Rig:     LinearRNG

@@ -15,6 +15,7 @@ dofile("src/DynamicEntity.lua")
 dofile("src/Effect.lua")
 dofile("src/Level.lua")
 dofile("src/Player.lua")
+dofile("src/ControlManager.lua")
 
 -------------------------------------------------------------------------------
 -- Entry point
