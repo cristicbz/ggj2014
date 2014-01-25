@@ -162,7 +162,9 @@ function ControlArea:setOwner(new_owner)
   else
     self.manager_.ownedBy_[self.owner_][self] = nil
     self.owner_ = new_owner
-    self.group_:removeAndSplit(self)
+    if self.group_ then
+      self.group_:removeAndSplit(self)
+    end
   end
 
   if self.group_ then error('shouldn\'t have a group') end
@@ -177,7 +179,11 @@ function ControlArea:setOwner(new_owner)
       if other.owner_ == new_owner then
         if self.group_ then
           if other.group_ ~= self.group_ then
-            self.group_:merge(other.group_)
+            if other.group_ == nil then
+              self.group_:add(other)
+            else
+              self.group_:merge(other.group_)
+            end
           end
         else
           other.group_:add(self)
