@@ -238,9 +238,9 @@ function Level:win(player)
                     self:nextLevel()
                     self.ended_ = false
                     self:showIntro()
-                    return RemoveListenerReturnValue
                   end
                 end)
+              return RemoveListenerReturnValue
             end)
       end)
   end

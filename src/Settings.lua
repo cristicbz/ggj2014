@@ -4,14 +4,13 @@ settings = {
     screen_width = 100,
     screen_pixel_width = 1280,
     screen_pixel_height = 720,
-    gravity = -0.02,
     global_drag = 0.145 
   },
 
   debug = {
     show_lines = false,
-    no_sound = true,
-    skip_intro = true,
+    no_sound = false,
+    skip_intro = false,
     render_walls = false,
   },
 
@@ -80,7 +79,7 @@ settings = {
         masks = {
           {
             texture_path = 'assets/gfx/Masks/crystal 100.png',
-            radius = 1.67 * 3,
+            radius = 1.37 * 3,
           }
         },
         hit_sounds = {
@@ -162,8 +161,8 @@ settings = {
 
   levels = {
     {
-      definition_path = "assets/levels/level2.lua",
-      background_path = "assets/gfx/level2.png",
+      definition_path = "assets/levels/level1.lua",
+      background_path = "assets/gfx/level1.png",
     },
     {
       definition_path = "assets/levels/level2.lua",
