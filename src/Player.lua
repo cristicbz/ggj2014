@@ -79,6 +79,8 @@ function Player:destroy()
 end
 
 function Player:goDir(toX, toY)
+  local norm = math.sqrt(toX * toX + toY * toY)
+  toX, toY = toX / norm, toY / norm
   self.body_:applyForce(toX * self.moveStrength_, toY * self.moveStrength_,
                         self.body_:getWorldCenter())
 end
@@ -132,14 +134,23 @@ function Controller.new(player, opts)
   self.downKey_ = opts.down
   self.leftKey_ = opts.left
   self.rightKey_ = opts.right
-  self.dirX_, self.dirY_ = 0, 0
   self.destroyed_ = false
   self.enabled_ = false
   self.coroutine_ = MOAICoroutine.new()
   self.coroutine_:run(
     function()
+      local kb = MOAIInputMgr.device.keyboard
+      local up, down, left, right = self.upKey_, self.downKey_, self.leftKey_, self.rightKey_
       while not self.destroyed_ do
-        local x, y = self.dirX_, self.dirY_
+        local x, y = 0, 0
+        if self.enabled_ then
+          if kb:keyIsDown(up) then y = 1
+          elseif kb:keyIsDown(down) then y = -1 end
+
+          if kb:keyIsDown(left) then x = -1
+          elseif kb:keyIsDown(right) then x = 1 end
+        end
+
         if x ~= 0 or y ~= 0 then player:goDir(x, y) end
         coroutine.yield()
       end
@@ -171,14 +182,13 @@ end
 
 function Controller:enable()
   if not self.enabled_ then
-    Keyboard:addListener(self.callback_)
+    --Keyboard:addListener(self.callback_)
     self.enabled_ = true
   end
 end
 
 function Controller:disable()
   if self.enabled_ then
-    Keyboard:removeListener(self.callback_)
     self.dirX_, self.dirY_ = 0, 0
     self.enabled_ = false
   end
