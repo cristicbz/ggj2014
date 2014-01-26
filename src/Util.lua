@@ -273,8 +273,9 @@ end
 -------------------------------------------------------------------------------
 TargetFollower = {}
 
-function TargetFollower.new( initial )
-  local self = {}
+function TargetFollower.new( initial, kp, kd )
+  local self = {kp_ = kp, kd_ = kd}
+
   
   TargetFollower.reset( self, initial )
   
@@ -284,7 +285,7 @@ end
 function TargetFollower:follow( target, dt )  
   local error      = target - (self.current+self.speed*dt*3)
   local derivative = (error - self.previousError) / dt
-  local control    = error * 32 + derivative * 4
+  local control    = error * self.kp_ + derivative * self.kd_
   
   self.speed   = self.speed + control * dt
   

@@ -19,6 +19,7 @@ dofile("src/ControlManager.lua")
 dofile("src/LeadingEffect.lua")
 dofile("src/Masker.lua")
 dofile("src/SoundFamily.lua")
+dofile("src/ScoreBar.lua")
 
 -------------------------------------------------------------------------------
 -- Entry point

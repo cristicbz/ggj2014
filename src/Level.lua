@@ -116,6 +116,8 @@ function Level.new(world, bgLayer, fgLayer, assets)
   self.track_:load(settings.music_tracks[trackIndex].path)
   self.track_:setVolume(settings.music_tracks[trackIndex].volume)
 
+  self.scoreBar_ = ScoreBar.new(fgLayer, settings.entities.score_bar)
+
   return self
 end
 
@@ -126,7 +128,7 @@ function Level:showIntro()
   else
     local opts = settings.intro
     local phases = {}
-    local prevTime = -0.5
+    local prevTime = -0.1
     for _, phaseDef in pairs(opts.phases) do
       local phase = {
         delay = (phaseDef.at - prevTime) * 0.5,
@@ -157,7 +159,7 @@ function Level:showIntro()
         local _, first = next(phases)
         timer:start()
         MOAICoroutine.blockOnAction(timer)
-        timer:setSpan(0.5)
+        timer:setSpan(0.1)
         self.assets_.intro_sound:play()
         for _, phase in pairs(phases) do
           MOAICoroutine.blockOnAction(
@@ -174,7 +176,6 @@ function Level:showIntro()
         self.track_:play(true)
       end)
   end
-  
 end
 
 function Level:nextLevel()
@@ -299,6 +300,10 @@ end
 function Level:createControlManager_(def)
   self.controlManager_ = ControlManager.new(self.globalCell_)
   self.controlManager_:addFromDefinition(def.controlareas)
+  self.controlManager_:scoresChangedSource():addListener(
+      function()
+        self.scoreBar_:update(self.players_[1].score_, self.players_[2].score_)
+      end)
 end
 
 function Level:createWalls_(def)
@@ -361,7 +366,6 @@ function Level:createWalls_(def)
 end
 
 function Level:clearCells_()
-  self.fgLayer_:clear()
   self:clearTransients_()
   if self.globalCell_ then self.globalCell_:destroy() end
   self.globalCell_ = LevelCell.new(self, self.assets_)

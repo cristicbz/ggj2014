@@ -10,7 +10,7 @@ settings = {
 
   debug = {
     show_lines = false,
-    no_sound = false,
+    no_sound = true,
     skip_intro = false,
     render_walls = true,
   },
@@ -18,6 +18,7 @@ settings = {
   priorities = {
     splotches = 5,
     players = 10,
+    hud = 15,
     fader = 100,
     text = 105,
   },
@@ -127,7 +128,14 @@ settings = {
           {path = 'assets/sfx/Foley/Boboa/Wall/BoboaWall01.ogg', volume = 1},
         },
       },
-    }
+    },
+    score_bar = {
+      width = 452, height = 31,
+      x = 410, y = 110,  -- top left
+      images = {
+        'assets/gfx/progress_orange.png', 'assets/gfx/progress_teal.png',
+      },
+    },
   },
 
   misc = {

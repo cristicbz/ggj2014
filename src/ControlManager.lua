@@ -31,12 +31,17 @@ function ControlManager.new(cell)
   self.maskLayer_ = cell.fgLayer_
   self.scores_ = {}
   self.enabled_ = true
+  self.scoresChanged_ = EventSource.new()
 
   return self
 end
 
 function ControlManager:disable()
   self.enabled_  = false
+end
+
+function ControlManager:scoresChangedSource()
+  return self.scoresChanged_
 end
 
 function ControlManager:recomputeScores()
@@ -67,7 +72,7 @@ function ControlManager:recomputeScores()
     end
   end
 
-  print(scoreDisplay)
+  self.scoresChanged_:emit()
 end
 
 function ControlManager:captureTouching(player)
