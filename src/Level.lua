@@ -115,9 +115,66 @@ function Level.new(world, bgLayer, fgLayer, assets)
   self.track_ = MOAIUntzSound.new()
   self.track_:load(settings.music_tracks[trackIndex].path)
   self.track_:setVolume(settings.music_tracks[trackIndex].volume)
-  self.track_:play(true)
 
   return self
+end
+
+function Level:showIntro()
+  if settings.debug.skip_intro then
+    self.world_:start()
+    self.track_:play(true)
+  else
+    local opts = settings.intro
+    local phases = {}
+    local prevTime = -0.5
+    for _, phaseDef in pairs(opts.phases) do
+      local phase = {
+        delay = (phaseDef.at - prevTime) * 0.5,
+      }
+
+      if phaseDef.image then
+        local deck = MOAIGfxQuad2D.new()
+        local w2 = phaseDef.width * Game.kPixelToWorld / 2
+        local h2 = phaseDef.height * Game.kPixelToWorld / 2
+        deck:setTexture(phaseDef.image)
+        deck:setRect(-w2, -h2, w2, h2)
+        phase.deck = deck
+      end
+
+      prevTime = phaseDef.at
+
+      table.insert(phases, phase)
+    end
+
+    local prop = MOAIProp2D.new()
+    self.fgLayer_:insertProp(prop)
+    prop:setScl(0, 0)
+    prop:setPriority(settings.priorities.text)
+    
+    MOAICoroutine.new():run(
+      function()
+        local timer = MOAITimer.new()
+        local _, first = next(phases)
+        timer:start()
+        MOAICoroutine.blockOnAction(timer)
+        timer:setSpan(0.5)
+        self.assets_.intro_sound:play()
+        for _, phase in pairs(phases) do
+          MOAICoroutine.blockOnAction(
+              prop:seekScl(0, 0, phase.delay, MOAIEaseType.EASE_OUT))
+          if phase.deck then
+            prop:setDeck(phase.deck)
+            MOAICoroutine.blockOnAction(
+                prop:seekScl(1, 1, phase.delay, MOAIEaseType.EASE_OUT))
+          end
+        end
+
+        self.fgLayer_:removeProp(prop)
+        self.world_:start()
+        self.track_:play(true)
+      end)
+  end
+  
 end
 
 function Level:nextLevel()
@@ -150,10 +207,20 @@ end
 function Level:win(player)
   if not self.ended_ then
     self.ended_ = true
-    self.world_:stop() print(player.name_ .. ' WINS!')
+    self.controlManager_:disable()
+    for _, p in pairs(self.players_) do
+      p:disableControl()
+    end
     MOAICoroutine.new():run(
     function()
-      self:fadeScreenIn({1, 1, 1, 1}, 1.0)
+      self.assets_.endofround_sound:play()
+      self:fadeScreenIn({0, 0, 0, .8}, 0.5)
+      local prop = MOAIProp2D.new()
+      prop:setDeck(player:getWinDeck())
+      prop:setScl(0, 0)
+      prop:seekScl(1, 1, .3, MOAIEaseType.EASE_IN)
+      prop:setPriority(settings.priorities.text)
+      self.fgLayer_:insertProp(prop)
     end)
   end
 end
@@ -167,9 +234,9 @@ function Level:fadeScreenIn(color, time)
     fader:setColor(0, 0, 0, 0)
     self.fgLayer_:insertProp(fader)
     MOAICoroutine.blockOnAction(fader:seekColor(
-        color[1], color[2], color[3], 1.0, time, MOAIEaseType.EASE_OUT))
+        color[1], color[2], color[3], color[4], time, MOAIEaseType.EASE_OUT))
   else
-    fader:setColor(color[1], color[2], color[3])
+    fader:setColor(color[1], color[2], color[3], color[4])
   end
 
   self.fader_ = fader
@@ -328,6 +395,7 @@ function Level:loadByIndex(newIndex)
   self:createWalls_(def)
   self:createControlManager_(def)
   self:createTransients_(def)
+  self.world_:stop()
 end
 
 function Level:registerBody( body, entity )
@@ -351,4 +419,6 @@ function Level:setPlayer( player )
 end
 
 function Level:pause() end
-function Level:unpause() end
+function Level:unpause()
+  self:showIntro()
+end

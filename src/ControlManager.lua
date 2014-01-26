@@ -30,8 +30,13 @@ function ControlManager.new(cell)
   self.groupsOwnedBy_ = groupsOwnedBy
   self.maskLayer_ = cell.fgLayer_
   self.scores_ = {}
+  self.enabled_ = true
 
   return self
+end
+
+function ControlManager:disable()
+  self.enabled_  = false
 end
 
 function ControlManager:recomputeScores()
@@ -58,7 +63,7 @@ function ControlManager:recomputeScores()
     if player == maxPlayer then
       player.effect_ = LeadingEffect.attach(player)
     elseif player.effect_ then
-      player.effect_:detach()
+      player.effect_:remove()
     end
   end
 
@@ -66,6 +71,7 @@ function ControlManager:recomputeScores()
 end
 
 function ControlManager:captureTouching(player)
+  if not self.enabled_ then return end
   if self.touchedBy_[player] == nil then return end
   if self.ownedBy_[player] == nil then self.ownedBy_[player] = {} end
 
@@ -118,7 +124,12 @@ function ControlManager:addFromDefinition(def)
     end
   end
 
-  dualWorld:start()
+  MOAICoroutine.new():run(
+    function()
+      dualWorld:start()
+      coroutine.yield()
+      dualWorld:stop()
+    end)
 end
 
 function ControlManager:destroy()

@@ -10,15 +10,16 @@ settings = {
 
   debug = {
     show_lines = false,
-    disable_lightmap = false,
     no_sound = false,
+    skip_intro = false,
     render_walls = true,
   },
 
   priorities = {
-    players = 10,
     splotches = 5,
+    players = 10,
     fader = 100,
+    text = 105,
   },
 
   collision_masks = {},
@@ -30,8 +31,23 @@ settings = {
 
   music_tracks = {
     {path = 'assets/sfx/Music/BattleTrack01.ogg', volume = 0.4},
-    {path = 'assets/sfx/Music/TaikoTrack01.ogg', volume = 0.8},
     {path = 'assets/sfx/Music/TranceTrack01.ogg', volume = 0.4},
+    --{path = 'assets/sfx/Music/TaikoTrack01.ogg', volume = 0.8},
+  },
+
+  intro = {
+    sound = { path ='assets/sfx/Transitions/ThreeTwoOneGo01.ogg', volume = 1.0 },
+    phases = {
+      { image = 'assets/gfx/3.png',  at = 0.20, width = 195, height = 325},
+      { image = 'assets/gfx/2.png',  at = 1.16, width = 217, height = 325},
+      { image = 'assets/gfx/1.png',  at = 2.23, width = 101, height = 325},
+      { image = 'assets/gfx/go.png', at = 3.13, width = 604, height = 310},
+      { image = nil,                 at = 4.13, width = 0, height = 0},
+    },
+  },
+
+  endofround = {
+    sound = { path = 'assets/sfx/Transitions/WeHaveAWinner02.ogg', volume = 1.0},
   },
 
   entities = {
@@ -40,6 +56,8 @@ settings = {
         name = 'kiki',
         texture_path = 'assets/gfx/kiki.png',
         splotch_texture_path = 'assets/gfx/CRYSTAL.png',
+        win_screen = {
+          path = 'assets/gfx/kiki_wins.png', width = 1000, height = 200},
         color = {1.0, 0.5, 0.0, 1.0},
         size = 2.85,
         collision_scale = 1.0,
@@ -77,6 +95,8 @@ settings = {
         name = 'bouba',
         texture_path = 'assets/gfx/bouba.png',
         splotch_texture_path = 'assets/gfx/GOOP.png',
+        win_screen = {
+          path = 'assets/gfx/bouba_wins.png', width = 1000, height = 200},
         color = {0.2, 0.8, 0.2, 1.0},
         size = 2.85,
         collision_scale = 1.0,

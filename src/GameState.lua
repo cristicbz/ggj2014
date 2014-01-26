@@ -39,7 +39,6 @@ end
 
 function GameState:unpause()
   self.started_ = true
-  self.world_:start()
   self.level_:unpause()
 end
 

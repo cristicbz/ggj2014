@@ -25,6 +25,12 @@ function Assets.new()
     local splotch_texture = MOAITexture.new()
     splotch_texture:load(player_opts.splotch_texture_path)
 
+    local win_screen = MOAIGfxQuad2D.new()
+    local w2 = player_opts.win_screen.width / 2 * Game.kPixelToWorld
+    local h2 = player_opts.win_screen.height / 2 * Game.kPixelToWorld
+    win_screen:setTexture(player_opts.win_screen.path)
+    win_screen:setRect(-w2, -h2, w2, h2)
+
     local hit_sounds = SoundFamily.new(player_opts.hit_sounds)
     local pulse_sounds = SoundFamily.new(player_opts.pulse_sounds)
 
@@ -34,6 +40,7 @@ function Assets.new()
       splotch_texture = splotch_texture,
       hit_sounds = hit_sounds,
       pulse_sounds = pulse_sounds,
+      win_screen = win_screen,
     }
   end
 
@@ -41,6 +48,14 @@ function Assets.new()
   self.fader:setTexture(settings.misc.pixel_texture_path)
   self.fader:setRect(-Game.kScreenWidth / 2, -Game.kScreenHeight / 2,
                      Game.kScreenWidth / 2, Game.kScreenHeight / 2)
+
+  self.intro_sound = MOAIUntzSound.new()
+  self.intro_sound:load(settings.intro.sound.path)
+  self.intro_sound:setVolume(settings.intro.sound.volume)
+
+  self.endofround_sound = MOAIUntzSound.new()
+  self.endofround_sound:load(settings.endofround.sound.path)
+  self.endofround_sound:setVolume(settings.endofround.sound.volume)
 
   return self
 end

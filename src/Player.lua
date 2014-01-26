@@ -49,9 +49,13 @@ function Player.new(cell, assets, opts)
   self.name_ = opts.name
   self.hit_sounds_ = assets.hit_sounds
   self.pulse_sounds_ = assets.pulse_sounds
+  self.winDeck_ = assets.win_screen
   self.score_ = 0
 
   return self
+end
+
+function Player:removeControl()
 end
 
 function Player:playPulseSound()
@@ -94,6 +98,18 @@ function Player:getMaskDeck()
   return self.maskDeck_
 end
 
+function Player:disableControl()
+  self.ctrl_:disable()
+end
+
+function Player:enableControl()
+  self.ctrl_:enable()
+end
+
+function Player:getWinDeck()
+  return self.winDeck_
+end
+
 function Player:rotateBy(angle)
   local vx, vy = self.body_:getLinearVelocity()
   local angle = math.atan2(vy, vx) + angle
@@ -121,9 +137,8 @@ function Controller.new(player, opts)
     function()
       while not self.destroyed_ do
         local x, y = self.dirX_, self.dirY_
-        if x ~= 0 or y ~= 0 then
-          player:goDir(x, y)
-        end
+        if not self.enabled_ then self.dirX_, self.dirY_ = 0, 0
+        elseif x ~= 0 or y ~= 0 then player:goDir(x, y) end
         coroutine.yield()
       end
     end)
@@ -147,5 +162,19 @@ function Controller.new(player, opts)
     end
   end
 
-  Keyboard:addListener(self.callback_)
+  self:enable()
+
+  return self
 end
+
+function Controller:enable()
+  Keyboard:addListener(self.callback_)
+  self.enabled_ = true
+end
+
+function Controller:disable()
+  Keyboard:removeListener(self.callback_)
+  self.enabled_ = false
+end
+
+
