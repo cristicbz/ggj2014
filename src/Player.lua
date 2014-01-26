@@ -72,8 +72,9 @@ function Player:getColor()
 end
 
 function Player:destroy()
-  self.ctrl_:stop()
+  self.ctrl_:destroy()
   self.layer_:removeProp(self.prop_)
+  self.masker_:destroy()
   DynamicEntity.destroy(self)
 end
 
@@ -133,13 +134,13 @@ function Controller.new(player, opts)
   self.rightKey_ = opts.right
   self.dirX_, self.dirY_ = 0, 0
   self.destroyed_ = false
+  self.enabled_ = false
   self.coroutine_ = MOAICoroutine.new()
   self.coroutine_:run(
     function()
       while not self.destroyed_ do
         local x, y = self.dirX_, self.dirY_
-        if not self.enabled_ then self.dirX_, self.dirY_ = 0, 0
-        elseif x ~= 0 or y ~= 0 then player:goDir(x, y) end
+        if x ~= 0 or y ~= 0 then player:goDir(x, y) end
         coroutine.yield()
       end
     end)
@@ -169,13 +170,24 @@ function Controller.new(player, opts)
 end
 
 function Controller:enable()
-  Keyboard:addListener(self.callback_)
-  self.enabled_ = true
+  if not self.enabled_ then
+    Keyboard:addListener(self.callback_)
+    self.enabled_ = true
+  end
 end
 
 function Controller:disable()
-  Keyboard:removeListener(self.callback_)
-  self.enabled_ = false
+  if self.enabled_ then
+    Keyboard:removeListener(self.callback_)
+    self.dirX_, self.dirY_ = 0, 0
+    self.enabled_ = false
+  end
 end
 
-
+function Controller:destroy()
+  if not self.destroyed_ then
+    self:disable()
+    self.destroyed_ = true
+    self.coroutine_:stop()
+  end
+end

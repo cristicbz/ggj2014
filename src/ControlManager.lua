@@ -55,6 +55,7 @@ function ControlManager:recomputeScores()
       for area, _ in pairs(group.areas_) do
         areasInGroup = areasInGroup + 1
       end
+      group.numAreas_ = areasInGroup
       totalAreas = totalAreas + areasInGroup
       score = score + areasInGroup * areasInGroup
     end
@@ -138,7 +139,9 @@ function ControlManager:addFromDefinition(def)
 end
 
 function ControlManager:destroy()
-  
+  for _, area in pairs(self.fixtureToArea_) do 
+    area:destroy() end
+  PhysicalEntity.destroy(self)
 end
 
 ControlArea = {}
@@ -154,6 +157,7 @@ function ControlArea.new(manager, layer)
   self.centre_ = nil
   self.group_ = nil
   self.pulsing_ = false
+  self.destroyed_ = false
 
   return self
 end
@@ -187,7 +191,7 @@ function ControlArea:pulse()
     area:pulse(math.random() * 0.1)
   end
 
-  MOAICoroutine.new():run(
+  self.coroutine_ = MOAICoroutine.new():run(
       function()
         local timer = MOAITimer.new()
         timer:setSpan(delay)
@@ -198,14 +202,12 @@ function ControlArea:pulse()
         MOAICoroutine.blockOnAction(self.mask_:seekScl(1, 1, 0.3,
                                     MOAIEaseType.EASE_IN))
         self.pulsing_ = false
+        self.coroutine_ = nil
       end)
 end
 
 function ControlArea:setOwner(new_owner)
-  if new_owner == self.owner_ then 
-    --if group_ then self:pulse() end
-    return
-  end
+  if new_owner == self.owner_ then return end
 
   if self.owner_ ~= nil then
     self.owner_:removeMask(self.mask_)
@@ -261,6 +263,16 @@ end
 function ControlArea:connectTo(other)
   self.connections_[other] = true
   other.connections_[self] = true
+end
+
+function ControlArea:destroy()
+  if not self.destroyed_ then
+    self.destroyed_ = true
+    if self.mask_ and self.owner_ then 
+      self.owner_:removeMask(self.mask_) 
+    end
+    if self.coroutine_ then self.coroutine_:stop() end
+  end
 end
 
 ControlGroup = {}

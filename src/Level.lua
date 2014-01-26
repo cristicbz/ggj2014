@@ -115,9 +115,10 @@ function Level.new(world, bgLayer, fgLayer, assets)
   math.random() math.random() math.random()
   local trackIndex = math.ceil(math.random() * (#settings.music_tracks))
   print(trackIndex, settings.music_tracks[trackIndex].path, os.time() )
+  self.trackVolume_ = settings.music_tracks[trackIndex].volume
   self.track_ = MOAIUntzSound.new()
   self.track_:load(settings.music_tracks[trackIndex].path)
-  self.track_:setVolume(settings.music_tracks[trackIndex].volume)
+  self.track_:setVolume(self.trackVolume_)
 
   self.scoreBar_ = ScoreBar.new(fgLayer, settings.entities.score_bar)
 
@@ -131,7 +132,7 @@ function Level:showIntro()
   else
     local opts = settings.intro
     local phases = {}
-    local prevTime = -0.1
+    local prevTime = 0.0
     for _, phaseDef in pairs(opts.phases) do
       local phase = {
         delay = (phaseDef.at - prevTime) * 0.5,
@@ -158,11 +159,11 @@ function Level:showIntro()
     
     MOAICoroutine.new():run(
       function()
-        local timer = MOAITimer.new()
-        local _, first = next(phases)
-        timer:start()
-        MOAICoroutine.blockOnAction(timer)
-        timer:setSpan(0.1)
+        --local timer = MOAITimer.new()
+        --local _, first = next(phases)
+        --timer:start()
+        --MOAICoroutine.blockOnAction(timer)
+        --timer:setSpan(0.1)
         self.assets_.intro_sound:play()
         for _, phase in pairs(phases) do
           MOAICoroutine.blockOnAction(
@@ -176,23 +177,23 @@ function Level:showIntro()
 
         self.fgLayer_:removeProp(prop)
         self.world_:start()
-        self.track_:play(true)
+        if not self.track_:isPlaying() then 
+          self.track_:setVolume(self.trackVolume_)
+          self.track_:play(true)
+        else
+          self.track_:seekVolume(self.trackVolume_, .8, MOAIEaseType.LINEAR)
+        end
       end)
   end
 end
 
 function Level:nextLevel()
-  local nextIndex = self.defIndex_ + 1
-  if nextIndex == #settings.levels + 1 then
-    self:fadeScreenIn(settings.world.new_level_fade_color,
-                      settings.world.new_level_fade_time)
-    self:endOfGameHack()
-  else
-    self:fadeScreenIn(settings.world.new_level_fade_color,
-                      settings.world.new_level_fade_time)
-    self:loadByIndex(nextIndex)
-    self:fadeScreenOut(settings.world.new_level_fade_time)
-  end
+  local fadeColor = settings.effects.new_game_fade_color
+  local fadeTime = settings.effects.new_game_fade_time
+  local nextIndex = self.defIndex_ % (#settings.levels) + 1
+  self:fadeScreenIn(fadeColor, fadeTime)
+  self:loadByIndex(nextIndex)
+  self:fadeScreenOut(fadeTime)
 end
 
 function Level:lose()
@@ -216,26 +217,45 @@ function Level:win(player)
       p:disableControl()
     end
     MOAICoroutine.new():run(
-    function()
-      self.assets_.endofround_sound:play()
-      self:fadeScreenIn({0, 0, 0, .8}, 0.5)
-      local prop = MOAIProp2D.new()
-      prop:setDeck(player:getWinDeck())
-      prop:setScl(0, 0)
-      prop:seekScl(1, 1, .3, MOAIEaseType.EASE_IN)
-      prop:setPriority(settings.priorities.text)
-      self.fgLayer_:insertProp(prop)
-    end)
+      function()
+        self.assets_.endofround_sound:play()
+        self:fadeScreenIn({0, 0, 0, .8}, 0.5)
+        local prop = MOAIProp2D.new()
+        prop:setDeck(player:getWinDeck())
+        prop:setScl(0, 0)
+        prop:seekScl(1, 1, .3, MOAIEaseType.EASE_IN)
+        prop:setPriority(settings.priorities.text)
+        self.fgLayer_:insertProp(prop)
+        Keyboard:addListener(
+            function(key, pressed)
+              MOAICoroutine.new():run(
+                function()
+                  if key == string.byte(' ') and pressed then 
+                    local act = prop:seekScl(0, 0, .2, MOAIEaseType.EASE_IN)
+                    self.track_:seekVolume(0, .8, MOAIEaseType.LINEAR)
+                    MOAICoroutine.blockOnAction(act)
+                    self.world_:stop()
+                    self:nextLevel()
+                    self.ended_ = false
+                    self:showIntro()
+                    return RemoveListenerReturnValue
+                  end
+                end)
+            end)
+      end)
   end
 end
 
 function Level:fadeScreenIn(color, time)
-  local fader = MOAIProp2D.new()
-  fader:setDeck(self.assets_.fader)
-  fader:setPriority(settings.priorities.fader)
+  local fader = self.fader_
+  if not fader then
+    fader = MOAIProp2D.new()
+    fader:setDeck(self.assets_.fader)
+    fader:setPriority(settings.priorities.fader)
+    fader:setColor(0, 0, 0, 0)
+  end
 
   if self.globalCell_ then 
-    fader:setColor(0, 0, 0, 0)
     self.fgLayer_:insertProp(fader)
     MOAICoroutine.blockOnAction(fader:seekColor(
         color[1], color[2], color[3], color[4], time, MOAIEaseType.EASE_OUT))
@@ -267,6 +287,12 @@ function Level:loadDefinition(index)
 end
 
 function Level:clearTransients_()
+  MOAIRenderMgr.setBufferTable({})
+  self.scoreBar_:update(0, 0)
+  if self.controlManager_ then
+    self.controlManager_:destroy()
+    self.controlManager_ = nil
+  end
   if self.transientCell_ then self.transientCell_:destroy() end
   self.transientCell_ = LevelCell.new(self, assets)
 end
@@ -276,7 +302,6 @@ function Level:restart()
   local fadeColor = settings.effects.new_game_fade_color
   local fadeTime = settings.effects.new_game_fade_time
   self:fadeScreenIn(fadeColor, fadeTime)
-  self:removeGameOver()
   self:clearTransients_()
   self:createTransients_(def)
   self:fadeScreenOut(fadeTime)
@@ -298,10 +323,12 @@ function Level:createTransients_(def)
   MOAIRenderMgr.setBufferTable(
       {self.players_[1].masker_:getFrameBuffer(),
        self.players_[2].masker_:getFrameBuffer()})
+
+  self:createControlManager_(def)
 end
 
 function Level:createControlManager_(def)
-  self.controlManager_ = ControlManager.new(self.globalCell_)
+  self.controlManager_ = ControlManager.new(self.transientCell_)
   self.controlManager_:addFromDefinition(def.controlareas)
   self.controlManager_:scoresChangedSource():addListener(
       function()
@@ -368,6 +395,15 @@ function Level:createWalls_(def)
   self.walls_ = {body = body, props = props}
 end
 
+function Level:destroyWalls()
+  if self.walls_ then
+    self.walls_.body:destroy()
+    for _, prop in pairs(self.walls_.props) do
+      self.fgLayer_:removeProp(prop)
+    end
+  end
+end
+
 function Level:clearCells_()
   self:clearTransients_()
   if self.globalCell_ then self.globalCell_:destroy() end
@@ -400,7 +436,6 @@ function Level:loadByIndex(newIndex)
   local def = self:loadDefinition(newIndex)
   self:loadBackground(newIndex)
   self:createWalls_(def)
-  self:createControlManager_(def)
   self:createTransients_(def)
   self.world_:stop()
 end

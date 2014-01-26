@@ -45,7 +45,8 @@ function ScoreBar:setRectsAt_(ratio)
 end
 
 function ScoreBar:update(score1, score2)
-  if score1 == 0 and score2 == 0 then score1, score2 = 1, 1 end
+  score1 = score1 + 10
+  score2 = score2 + 10
   self.targetRatio_ = score1 / (score1 + score2)
 end
 

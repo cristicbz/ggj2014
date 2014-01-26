@@ -39,6 +39,8 @@ function Masker.new(baseTexture, destLayer)
   destProp:setPriority(settings.priorities.splotches)
   destLayer:insertProp(destProp)
 
+  self.destProp_ = destProp
+  self.destLayer_ = destLayer
   self.maskLayer_ = maskLayer
   self.framebuffer_ = framebuffer
 
@@ -65,4 +67,10 @@ end
 
 function Masker:removeMask(mask)
   self.maskLayer_:removeProp(mask)
+end
+
+function Masker:destroy()
+  self.destLayer_:removeProp(self.destProp_)
+  self.framebuffer_:setRenderTable({})
+  self.maskLayer_:clear()
 end

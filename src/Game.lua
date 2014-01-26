@@ -22,6 +22,7 @@ if settings.debug.no_sound then
     new = function()
       return {
         setVolume = function() end,
+        seekVolume = function() end,
         load = function() end,
         play = function() end,
         stop = function() end,

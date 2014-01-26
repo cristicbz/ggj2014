@@ -10,9 +10,9 @@ settings = {
 
   debug = {
     show_lines = false,
-    no_sound = true,
+    no_sound = false,
     skip_intro = false,
-    render_walls = true,
+    render_walls = false,
   },
 
   priorities = {
@@ -156,13 +156,18 @@ settings = {
     breathe_volume = 0.17,
   },
 
-  effects = {
-  },
-
   levels = {
     {
+      definition_path = "assets/levels/level1.lua",
+      background_path = "assets/gfx/level1.png",
+    },
+    {
       definition_path = "assets/levels/level2.lua",
-      background_path = "assets/gfx/ARENA.png",
+      background_path = "assets/gfx/level2.png",
+    },
+    {
+      definition_path = "assets/levels/level3.lua",
+      background_path = "assets/gfx/level3.png",
     },
   },
 }
