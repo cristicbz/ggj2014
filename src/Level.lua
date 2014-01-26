@@ -224,21 +224,25 @@ function Level:win(player)
         prop:setDeck(player:getWinDeck())
         prop:setScl(0, 0)
         prop:setPriority(settings.priorities.text)
-        MOAICoroutine.blockOnAction(prop:seekScl(1, 1, .3, MOAIEaseType.EASE_IN))
         self.fgLayer_:insertProp(prop)
+        MOAICoroutine.blockOnAction(prop:seekScl(1, 1, .3, MOAIEaseType.EASE_IN))
+        local t = MOAITimer.new()
+        t:setSpan(1.5)
+        t:start()
+        MOAICoroutine.blockOnAction(t)
         Keyboard:addListener(
             function(key, pressed)
               MOAICoroutine.new():run(
                 function()
-                  if key == string.byte(' ') and pressed then 
+                  if self.ended_ and key == string.byte(' ') and pressed then 
                     local act = prop:seekScl(0, 0, .2, MOAIEaseType.EASE_IN)
                     self.track_:seekVolume(0, .8, MOAIEaseType.LINEAR)
                     MOAICoroutine.blockOnAction(act)
                     self.fgLayer_:removeProp(prop)
                     self.world_:stop()
                     self:nextLevel()
-                    self.ended_ = false
                     self:showIntro()
+                    self.ended_ = false
                   end
                 end)
               return RemoveListenerReturnValue

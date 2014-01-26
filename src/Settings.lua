@@ -9,8 +9,8 @@ settings = {
 
   debug = {
     show_lines = false,
-    no_sound = true,
-    skip_intro = true,
+    no_sound = false,
+    skip_intro = false,
     render_walls = false,
   },
 
