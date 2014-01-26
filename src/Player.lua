@@ -50,6 +50,7 @@ function Player.new(cell, assets, opts)
   self.hit_sounds_ = assets.hit_sounds
   self.pulse_sounds_ = assets.pulse_sounds
   self.winDeck_ = assets.win_screen
+  self.maskOpacity_ = opts.mask_opacity
   self.score_ = 0
 
   return self
@@ -87,7 +88,7 @@ end
 
 function Player:placeMaskAt(x, y, a)
   local deck = self:getMaskDeck()
-  return self.masker_:addMask(deck, x, y, a)
+  return self.masker_:addMask(deck, self.maskOpacity_, x, y, a)
 end
 
 function Player:removeMask(mask)

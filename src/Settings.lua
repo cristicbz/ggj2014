@@ -65,6 +65,7 @@ settings = {
         restitution = 3,
         friction = 0.05,
         move_strength = 300.0,
+        mask_opacity = .8,
         bindings = {
           up = string.byte('w'),
           down = string.byte('s'),
@@ -74,7 +75,7 @@ settings = {
         masks = {
           {
             texture_path = 'assets/gfx/Masks/crystal 100.png',
-            radius = 1.67 * 3
+            radius = 1.67 * 3,
           }
         },
         hit_sounds = {
@@ -104,6 +105,7 @@ settings = {
         restitution = 3,
         friction = 0.05,
         move_strength = 300.0,
+        mask_opacity = .8,
         bindings = {
           up = string.byte('i'),
           down = string.byte('k'),
@@ -113,7 +115,7 @@ settings = {
         masks = {
           {
             texture_path = 'assets/gfx/Masks/goop 100.png',
-            radius = 1.67 * 3,
+            radius = 1.67 * 3
           }
         },
         hit_sounds = {
