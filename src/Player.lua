@@ -35,6 +35,9 @@ function Player.new(cell, assets, opts)
   local layer = cell.fgLayer_
   layer:insertProp(prop)
 
+  local masker = Masker.new(assets.splotch_texture, cell.fgLayer_)
+
+  self.masker_ = masker
   self.ctrl_ = Controller.new(self, opts.bindings)
   self.prop_ = prop
   self.layer_ = layer
@@ -44,9 +47,19 @@ function Player.new(cell, assets, opts)
   self.maskDeck_ = assets.mask_quads[1]
   self.color_ = opts.color
   self.name_ = opts.name
+  self.hit_sounds_ = assets.hit_sounds
+  self.pulse_sounds_ = assets.pulse_sounds
   self.score_ = 0
 
   return self
+end
+
+function Player:playPulseSound()
+  self.pulse_sounds_:playOne()
+end
+
+function Player:playHitSound()
+  self.hit_sounds_:playOne()
 end
 
 function Player:getColor()
@@ -66,6 +79,15 @@ end
 
 function Player:moveTo(x, y)
   self.body_:setTransform(x, y, self.body_:getAngle())
+end
+
+function Player:placeMaskAt(x, y, a)
+  local deck = self:getMaskDeck()
+  return self.masker_:addMask(deck, x, y, a)
+end
+
+function Player:removeMask(mask)
+  self.masker_:removeMask(mask)
 end
 
 function Player:getMaskDeck()

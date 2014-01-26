@@ -22,9 +22,18 @@ function Assets.new()
       table.insert(mask_quads, mask_quad)
     end
 
+    local splotch_texture = MOAITexture.new()
+    splotch_texture:load(player_opts.splotch_texture_path)
+
+    local hit_sounds = SoundFamily.new(player_opts.hit_sounds)
+    local pulse_sounds = SoundFamily.new(player_opts.pulse_sounds)
+
     self.players[iPlayer] = {
       character_texture = character_texture,
       mask_quads = mask_quads,
+      splotch_texture = splotch_texture,
+      hit_sounds = hit_sounds,
+      pulse_sounds = pulse_sounds,
     }
   end
 

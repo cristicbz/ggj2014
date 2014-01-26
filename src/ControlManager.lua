@@ -69,11 +69,18 @@ function ControlManager:captureTouching(player)
   if self.touchedBy_[player] == nil then return end
   if self.ownedBy_[player] == nil then self.ownedBy_[player] = {} end
 
+  local any_new_areas = false
   for area, _ in pairs(self.touchedBy_[player]) do
-    area:setOwner(player)
+    if area.owner_ ~= player then
+      any_new_areas = true
+      area:setOwner(player)
+    end
   end
 
-  self:recomputeScores()
+  if any_new_areas then
+    player:playHitSound()
+    self:recomputeScores()
+  end
 end
 
 function ControlManager:addFromDefinition(def)
@@ -170,9 +177,9 @@ function ControlArea:pulse()
         timer:setSpan(delay)
         timer:start()
         MOAICoroutine.blockOnAction(timer)
-        MOAICoroutine.blockOnAction(self.prop_:seekScl(1.4, 1.4, 0.1,
+        MOAICoroutine.blockOnAction(self.mask_:seekScl(1.4, 1.4, 0.1,
                                     MOAIEaseType.LINEAR))
-        MOAICoroutine.blockOnAction(self.prop_:seekScl(1, 1, 0.3,
+        MOAICoroutine.blockOnAction(self.mask_:seekScl(1, 1, 0.3,
                                     MOAIEaseType.EASE_IN))
         self.pulsing_ = false
       end)
@@ -184,15 +191,10 @@ function ControlArea:setOwner(new_owner)
     return
   end
 
-  if self.prop_ == nil then
-    self.prop_ = MOAIProp2D.new()
-    self.prop_:setLoc(self.centreX_, self.centreY_)
-    self.prop_:setBlendMode(MOAIProp.GL_ONE, MOAIProp.GL_ONE)
-    self.prop_:setRot(math.random() * 360)
-    self.layer_:insertProp(self.prop_)
-  elseif self.owner_ == nil then
-    self.prop_:setVisible(true)
-  else
+  if self.owner_ ~= nil then
+    self.owner_:removeMask(self.mask_)
+    self.mask_ = nil
+
     self.manager_.ownedBy_[self.owner_][self] = nil
     self.owner_ = new_owner
     if self.group_ then
@@ -204,8 +206,8 @@ function ControlArea:setOwner(new_owner)
 
   self.owner_ = new_owner
   if new_owner then
-    self.prop_:setDeck(new_owner:getMaskDeck())
-    self.prop_:setColor(unpack(new_owner:getColor()))
+    self.mask_ = new_owner:placeMaskAt(
+        self.centreX_, self.centreY_, math.random() * 360)
     self.manager_.ownedBy_[new_owner][self] = true
 
     for other, _ in pairs(self.connections_) do
@@ -227,9 +229,12 @@ function ControlArea:setOwner(new_owner)
     if not self.group_ then
       self.group_ = ControlGroup.new(self.manager_, self)
     end
+
+    if self.owner_ and self.group_.numAreas_ > 3 then 
+      self.owner_:playPulseSound() 
+    end
+
     self:pulse()
-  else
-    self.prop_:setVisible(false)
   end
 end
 

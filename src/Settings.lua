@@ -11,12 +11,13 @@ settings = {
   debug = {
     show_lines = false,
     disable_lightmap = false,
-    no_sound = true,
+    no_sound = false,
     render_walls = true,
   },
 
   priorities = {
     players = 10,
+    splotches = 5,
     fader = 100,
   },
 
@@ -27,11 +28,18 @@ settings = {
     new_game_fade_time = 1,
   },
 
+  music_tracks = {
+    {path = 'assets/sfx/Music/BattleTrack01.ogg', volume = 0.4},
+    {path = 'assets/sfx/Music/TaikoTrack01.ogg', volume = 0.8},
+    {path = 'assets/sfx/Music/TranceTrack01.ogg', volume = 0.4},
+  },
+
   entities = {
     players = {
       {
         name = 'kiki',
         texture_path = 'assets/gfx/kiki.png',
+        splotch_texture_path = 'assets/gfx/CRYSTAL.png',
         color = {1.0, 0.5, 0.0, 1.0},
         size = 2.85,
         collision_scale = 1.0,
@@ -51,10 +59,24 @@ settings = {
             radius = 1.67 * 3
           }
         },
+        hit_sounds = {
+          {path = 'assets/sfx/Foley/Kiki/Hits/KikiHit01.ogg', volume = 1},
+          {path = 'assets/sfx/Foley/Kiki/Hits/KikiHit02.ogg', volume = 1},
+          {path = 'assets/sfx/Foley/Kiki/Hits/KikiHit03.ogg', volume = 1},
+          {path = 'assets/sfx/Foley/Kiki/Hits/KikiHit04.ogg', volume = 1},
+          {path = 'assets/sfx/Foley/Kiki/Hits/KikiHit05.ogg', volume = 1},
+        },
+        pulse_sounds = {
+          {path = 'assets/sfx/Foley/Kiki/Wall/Freeze KikiExpansion.ogg', volume = 1},
+          {path = 'assets/sfx/Foley/Kiki/Wall/Freeze KikiExpansion-1.ogg', volume = 1},
+          {path = 'assets/sfx/Foley/Kiki/Wall/Freeze KikiExpansion-2.ogg', volume = 1},
+          {path = 'assets/sfx/Foley/Kiki/Wall/Freeze KikiExpansion-3.ogg', volume = 1},
+        }
       },
       {
         name = 'bouba',
         texture_path = 'assets/gfx/bouba.png',
+        splotch_texture_path = 'assets/gfx/GOOP.png',
         color = {0.2, 0.8, 0.2, 1.0},
         size = 2.85,
         collision_scale = 1.0,
@@ -73,6 +95,14 @@ settings = {
             texture_path = 'assets/gfx/Masks/goop 100.png',
             radius = 1.67 * 3,
           }
+        },
+        hit_sounds = {
+          {path = 'assets/sfx/Foley/Boboa/Hits/BoboaHits01.ogg', volume = 1},
+          {path = 'assets/sfx/Foley/Boboa/Hits/BoboaHits02.ogg', volume = 1},
+          {path = 'assets/sfx/Foley/Boboa/Hits/BoboaHits03.ogg', volume = 1},
+        },
+        pulse_sounds = {
+          {path = 'assets/sfx/Foley/Boboa/Wall/BoboaWall01.ogg', volume = 1},
         },
       },
     }

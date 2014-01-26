@@ -111,6 +111,12 @@ function Level.new(world, bgLayer, fgLayer, assets)
 
   self.bodyLookup_ = ActiveSet.new()
 
+  local trackIndex = math.random(#settings.music_tracks)
+  self.track_ = MOAIUntzSound.new()
+  self.track_:load(settings.music_tracks[trackIndex].path)
+  self.track_:setVolume(settings.music_tracks[trackIndex].volume)
+  self.track_:play(true)
+
   return self
 end
 
@@ -217,6 +223,10 @@ function Level:createTransients_(def)
     player:moveTo(unpack(playerDefs[iPlayer]))
     self.players_[iPlayer] = player
   end
+
+  MOAIRenderMgr.setBufferTable(
+      {self.players_[1].masker_:getFrameBuffer(),
+       self.players_[2].masker_:getFrameBuffer()})
 end
 
 function Level:createControlManager_(def)
