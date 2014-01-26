@@ -2,8 +2,8 @@ settings = {
   world = {
     small_step_size = 1 / 120.0,
     screen_width = 100,
-    screen_pixel_width = 1280*0.75,
-    screen_pixel_height = 720*0.75,
+    screen_pixel_width = 1280,
+    screen_pixel_height = 720,
     gravity = -0.02,
     global_drag = 0.145 
   },
@@ -87,10 +87,10 @@ settings = {
           {path = 'assets/sfx/Foley/Kiki/Hits/KikiHit05.ogg', volume = 1},
         },
         pulse_sounds = {
-          {path = 'assets/sfx/Foley/Kiki/Wall/Freeze KikiExpansion.ogg', volume = 1},
-          {path = 'assets/sfx/Foley/Kiki/Wall/Freeze KikiExpansion-1.ogg', volume = 1},
-          {path = 'assets/sfx/Foley/Kiki/Wall/Freeze KikiExpansion-2.ogg', volume = 1},
-          {path = 'assets/sfx/Foley/Kiki/Wall/Freeze KikiExpansion-3.ogg', volume = 1},
+          {path = 'assets/sfx/Foley/Kiki/Wall/KikiWall01.ogg', volume = 1},
+          {path = 'assets/sfx/Foley/Kiki/Wall/KikiWall02.ogg', volume = 1},
+          {path = 'assets/sfx/Foley/Kiki/Wall/KikiWall03.ogg', volume = 1},
+          {path = 'assets/sfx/Foley/Kiki/Wall/KikiWall04.ogg', volume = 1},
         }
       },
       {
