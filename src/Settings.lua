@@ -2,8 +2,8 @@ settings = {
   world = {
     small_step_size = 1 / 120.0,
     screen_width = 100,
-    screen_pixel_width = 1280,
-    screen_pixel_height = 720,
+    screen_pixel_width = 1280*0.75,
+    screen_pixel_height = 720*0.75,
     gravity = -0.02,
     global_drag = 0.145 
   },
