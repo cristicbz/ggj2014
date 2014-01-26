@@ -111,7 +111,10 @@ function Level.new(world, bgLayer, fgLayer, assets)
 
   self.bodyLookup_ = ActiveSet.new()
 
-  local trackIndex = math.random(#settings.music_tracks)
+  math.randomseed(os.time())
+  math.random() math.random() math.random()
+  local trackIndex = math.ceil(math.random() * (#settings.music_tracks))
+  print(trackIndex, settings.music_tracks[trackIndex].path, os.time() )
   self.track_ = MOAIUntzSound.new()
   self.track_:load(settings.music_tracks[trackIndex].path)
   self.track_:setVolume(settings.music_tracks[trackIndex].volume)
