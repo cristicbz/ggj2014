@@ -336,6 +336,16 @@ function Level:createControlManager_(def)
       end)
 end
 
+function Level:createSpecials_(def)
+  if def.specials then
+    for _, object in pairs(def.specials) do
+      if object.subclass == 'speed' then
+        Speeder.new(self.globalCell_, object, self.assets_.speeder)
+      end
+    end
+  end
+end
+
 function Level:createWalls_(def)
   self.wallsHandler_ = function(phase, a, b)
     local player = self:lookupBody(b:getBody())
@@ -437,6 +447,7 @@ function Level:loadByIndex(newIndex)
   self:loadBackground(newIndex)
   self:createWalls_(def)
   self:createTransients_(def)
+  self:createSpecials_(def)
   self.world_:stop()
 end
 

@@ -10,8 +10,8 @@ settings = {
 
   debug = {
     show_lines = false,
-    no_sound = false,
-    skip_intro = false,
+    no_sound = true,
+    skip_intro = true,
     render_walls = false,
   },
 
@@ -52,6 +52,10 @@ settings = {
   },
 
   entities = {
+    speeder = {
+      texture_path = 'assets/gfx/speed.png',
+      strength = 20,
+    },
     players = {
       {
         name = 'kiki',
@@ -158,8 +162,8 @@ settings = {
 
   levels = {
     {
-      definition_path = "assets/levels/level1.lua",
-      background_path = "assets/gfx/level1.png",
+      definition_path = "assets/levels/level2.lua",
+      background_path = "assets/gfx/level2.png",
     },
     {
       definition_path = "assets/levels/level2.lua",

@@ -20,6 +20,7 @@ dofile("src/LeadingEffect.lua")
 dofile("src/Masker.lua")
 dofile("src/SoundFamily.lua")
 dofile("src/ScoreBar.lua")
+dofile("src/Speeder.lua")
 
 -------------------------------------------------------------------------------
 -- Entry point

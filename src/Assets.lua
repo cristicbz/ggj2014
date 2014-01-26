@@ -57,5 +57,8 @@ function Assets.new()
   self.endofround_sound:load(settings.endofround.sound.path)
   self.endofround_sound:setVolume(settings.endofround.sound.volume)
 
+  self.speeder = MOAITexture.new()
+  self.speeder:load(settings.entities.speeder.texture_path)
+
   return self
 end
