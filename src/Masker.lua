@@ -35,7 +35,7 @@ function Masker.new(baseTexture, destLayer)
 
   local destProp = MOAIProp2D.new()
   destProp:setDeck(destDeck)
-  destProp:setBlendMode(MOAIProp.GL_SRC_ALPHA, MOAIProp.GL_ONE)
+  destProp:setBlendMode(MOAIProp.GL_SRC_ALPHA, MOAIProp.GL_ONE_MINUS_SRC_ALPHA)
   destProp:setPriority(settings.priorities.splotches)
   destLayer:insertProp(destProp)
 
